@@ -1,0 +1,39 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="MASKED_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.example.visa.util.SensitiveDataMaskingLayout">
+                <pattern>%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n
+                </pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <logger name="io.micronaut.http.client" level="INFO"/>
+    <logger name="io.micronaut.context" level="INFO"/>
+    <logger name="io.micronaut.runtime" level="INFO"/>
+    <logger name="io.micronaut.http.server" level="INFO"/>
+    <logger name="io.micronaut.http.client.netty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+
+    <!-- API request/response logging with sensitive data masking -->
+    <logger name="com.example.visa.client" level="DEBUG" additivity="false">
+        <appender-ref ref="MASKED_CONSOLE"/>
+    </logger>
+
+    <!-- Message handling logging with sensitive data masking -->
+    <logger name="com.example.visa.messaging" level="DEBUG" additivity="false">
+        <appender-ref ref="MASKED_CONSOLE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

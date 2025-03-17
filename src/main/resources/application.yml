@@ -1,0 +1,51 @@
+micronaut:
+  application:
+    name: visa-click-to-pay-proxy
+  server:
+    port: 8080
+  http:
+    client:
+      read-timeout: 30s
+      connect-timeout: 10s
+      pool:
+        enabled: true
+        max-connections: 50
+
+rabbitmq:
+  uri: ${RABBITMQ_URI:amqp://localhost:5672}
+  username: ${RABBITMQ_USERNAME:guest}
+  password: ${RABBITMQ_PASSWORD:guest}
+
+visa:
+  api:
+    base-url: ${VISA_API_BASE_URL:https://sandbox.api.visa.com}
+    connection-timeout: 10s
+    read-timeout: 30s
+    write-timeout: 30s
+    max-connections: 20
+    max-connections-per-route: 10
+    retry:
+      max-attempts: 3
+      delay: 1s
+      multiplier: 2
+  security:
+    vault:
+      enabled: true
+      address: ${VAULT_ADDRESS:http://localhost:8200}
+      app-role-id: ${VAULT_APPROLE_ID}
+      app-role-secret-id: ${VAULT_APPROLE_SECRET_ID}
+      secret-path: ${VAULT_SECRET_PATH:secret/visa}
+    ssl:
+      certificate-path: ${SSL_CERT_PATH:/tmp/visa-certificates}
+      key-password: ${SSL_KEY_PASSWORD}
+      keystore-password: ${SSL_KEYSTORE_PASSWORD}
+      keystore-path: ${SSL_KEYSTORE_PATH:/tmp/visa-certificates/keystore.jks}
+      truststore-password: ${SSL_TRUSTSTORE_PASSWORD}
+      truststore-path: ${SSL_TRUSTSTORE_PATH:/tmp/visa-certificates/truststore.jks}
+
+logging:
+  level:
+    root: INFO
+    dev.example.visa: DEBUG
+    io.micronaut.http.client: INFO
+  pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId},%X{spanId}] - %msg%n"

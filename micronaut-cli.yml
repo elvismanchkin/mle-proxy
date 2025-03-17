@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: dev.tsvinc
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [ annotation-api, app-name, control-panel, http-client, jackson-databind, java, java-application, junit, junit-params, logback, lombok, management, maven, maven-enforcer-plugin, micrometer, micrometer-annotation, micrometer-prometheus, micronaut-aot, micronaut-http-validation, mockito, netty-server, openrewrite, problem-json, rabbitmq, reactor, reactor-http-client, readme, retry, shade, static-resources, test-resources, tracing-opentelemetry-annotations, tracing-opentelemetry-exporter-jaeger, tracing-opentelemetry-exporter-logging, tracing-opentelemetry-exporter-otlp, tracing-opentelemetry-http, tracing-opentelemetry-jaeger, validation, yaml, yaml-build ]
