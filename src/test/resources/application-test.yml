@@ -3,29 +3,33 @@ micronaut:
     name: visa-click-to-pay-proxy-test
   server:
     port: -1  # Use random port for tests
+  http:
+    client:
+      read-timeout: 1s
+      connect-timeout: 1s
+      ssl:
+        insecure-trust-all-certificates: true  # For testing only
 
-# Disable RabbitMQ for service tests
+# Disable RabbitMQ for unit tests
 rabbitmq:
   enabled: false
 
-# Mock Vault Configuration
+# Disable Vault for tests
 visa:
   security:
     vault:
       enabled: false
-      app-role-id: "test-app-role-id"
-      app-role-secret-id: "test-app-role-secret-id"
-      secret-path: "test/visa"
-      address: "http://localhost:8200"
+      app-role-id: test-app-role-id
+      app-role-secret-id: test-app-role-secret-id
     ssl:
-      certificate-path: "/tmp/test-certificates"
-      keystore-password: "test-password"
-      keystore-path: "/tmp/test-certificates/keystore.jks"
-      truststore-password: "test-password"
-      truststore-path: "/tmp/test-certificates/truststore.jks"
-      key-password: "test-password"
+      certificate-path: /tmp/test-certificates
+      keystore-password: test-password
+      keystore-path: /tmp/test-certificates/keystore.jks
+      truststore-password: test-password
+      truststore-path: /tmp/test-certificates/truststore.jks
+      key-password: test-password
   api:
-    base-url: "https://test.api.visa.com"
+    base-url: https://test.api.visa.com
     connection-timeout: 1s
     read-timeout: 1s
     retry:
@@ -38,87 +42,4 @@ otel:
     disabled: true
   exporter:
     otlp:
-      enabled: false
-
-# Configure test logging
-logger:
-  levels:
-    io.micronaut: WARN
-    io.netty: WARN
-    com.rabbitmq: WARN
-    io.opentelemetry: ERROR
-    dev.example.visa: DEBUG
-#---
-#micronaut:
-#  application:
-#    name: visa-click-to-pay-proxy-test
-#  server:
-#    port: -1  # Use random port for tests
-#
-## Disable RabbitMQ for service tests
-#rabbitmq:
-#  enabled: false
-#
-## Disable Vault for tests
-#visa:
-#  security:
-#    vault:
-#      enabled: false
-#
-## Configure test logging
-#logger:
-#  levels:
-#    io.micronaut: WARN
-#    io.netty: WARN
-#    dev.example.visa: DEBUG
-#-----
-#micronaut:
-#  application:
-#    name: visa-click-to-pay-proxy-test
-#  server:
-#    port: -1  # Use random port for tests
-#
-#rabbitmq:
-#  host: localhost
-#  port: 5672
-#  username: guest
-#  password: guest
-#  exchange:
-#    name: visa-click-to-pay-test-exchange
-#  rpc:
-#    request-queue: visa-click-to-pay-test-requests
-#    timeout: 5s
-#
-#visa:
-#  api:
-#    base-url: https://test.api.visa.com
-#    connection-timeout: 1s
-#    read-timeout: 1s
-#    retry:
-#      max-attempts: 1
-#      delay: 100ms
-#  security:
-#    vault:
-#      enabled: false
-#    ssl:
-#      certificate-path: /tmp/test-certificates
-#      keystore-password: test-password
-#      keystore-path: /tmp/test-certificates/keystore.jks
-#      truststore-password: test-password
-#      truststore-path: /tmp/test-certificates/truststore.jks
-#      key-password: test-password
-#
-## Disable service discovery for tests
-#consul:
-#  client:
-#    registration:
-#      enabled: false
-#    enabled: false
-#
-## Configure test logging
-#logger:
-#  levels:
-#    io.micronaut: WARN
-#    io.netty: WARN
-#    com.rabbitmq: WARN
-#    dev.example.visa: DEBUG
+      enable

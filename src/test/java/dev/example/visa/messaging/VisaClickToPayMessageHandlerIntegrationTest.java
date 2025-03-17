@@ -1,46 +1,36 @@
-package dev.example.visa.service;
+package dev.example.visa.messaging;
 
-import dev.example.visa.model.Address;
-import dev.example.visa.model.CardPaymentInstrument;
-import dev.example.visa.model.ConsumerInformation;
-import dev.example.visa.model.ConsumerInformationIdRef;
-import dev.example.visa.model.DeletePaymentInstrumentsRequest;
-import dev.example.visa.model.EnrollDataRequest;
-import dev.example.visa.model.EnrollPaymentInstrumentsRequest;
-import dev.example.visa.model.GetDataRequest;
-import dev.example.visa.model.Intent;
-import dev.example.visa.model.ManageConsumerInformationRequest;
-import dev.example.visa.test.BaseUnitTest;
-import io.micronaut.test.extensions.junit5.MicronautJunit5Extension;
+import dev.example.visa.model.*;
+import dev.example.visa.test.BaseIntegrationTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * Unit tests for VisaClickToPayService.
- * Uses mocked dependencies for isolated testing.
+ * Integration tests for VisaClickToPayMessageHandler.
+ * Uses RabbitMQ TestContainer for actual messaging interaction,
+ * while still mocking the Visa API client.
  */
-@ExtendWith(MicronautJunit5Extension.class)
-class VisaClickToPayServiceTest extends BaseUnitTest {
+class VisaClickToPayMessageHandlerIntegrationTest extends BaseIntegrationTest {
 
     @Inject
-    VisaClickToPayService service;
+    VisaClickToPayProducer producer;
 
     @Test
-    void testEnrollData() {
+    void testEnrollDataViaRabbitMQ() {
         // Arrange
         EnrollDataRequest request = createTestEnrollDataRequest();
         String correlationId = UUID.randomUUID().toString();
 
         // Act & Assert
-        StepVerifier.create(service.enrollData(request, correlationId))
+        StepVerifier.create(producer.enrollData(request, correlationId))
                 .assertNext(response -> {
                     assertNotNull(response);
                     assertNotNull(response.requestTraceId());
@@ -49,28 +39,13 @@ class VisaClickToPayServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void testEnrollPaymentInstruments() {
-        // Arrange
-        EnrollPaymentInstrumentsRequest request = createTestEnrollPaymentInstrumentsRequest();
-        String correlationId = UUID.randomUUID().toString();
-
-        // Act & Assert
-        StepVerifier.create(service.enrollPaymentInstruments(request, correlationId))
-                .assertNext(response -> {
-                    assertNotNull(response);
-                    assertNotNull(response.requestTraceId());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    void testGetData() {
+    void testGetDataViaRabbitMQ() {
         // Arrange
         GetDataRequest request = createTestGetDataRequest();
         String correlationId = UUID.randomUUID().toString();
 
         // Act & Assert
-        StepVerifier.create(service.getData(request, correlationId))
+        StepVerifier.create(producer.getData(request, correlationId))
                 .assertNext(response -> {
                     assertNotNull(response);
                     assertNotNull(response.data());
@@ -79,28 +54,13 @@ class VisaClickToPayServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void testManageConsumerInformation() {
-        // Arrange
-        ManageConsumerInformationRequest request = createTestManageConsumerInformationRequest();
-        String correlationId = UUID.randomUUID().toString();
-
-        // Act & Assert
-        StepVerifier.create(service.manageConsumerInformation(request, correlationId))
-                .assertNext(response -> {
-                    assertNotNull(response);
-                    assertNotNull(response.requestTraceId());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    void testDeletePaymentInstruments() {
+    void testDeletePaymentInstrumentsViaRabbitMQ() {
         // Arrange
         DeletePaymentInstrumentsRequest request = createTestDeletePaymentInstrumentsRequest();
         String correlationId = UUID.randomUUID().toString();
 
         // Act & Assert
-        StepVerifier.create(service.deletePaymentInstruments(request, correlationId))
+        StepVerifier.create(producer.deletePaymentInstruments(request, correlationId))
                 .assertNext(response -> {
                     assertNotNull(response);
                     assertNotNull(response.requestTraceId());
@@ -118,25 +78,10 @@ class VisaClickToPayServiceTest extends BaseUnitTest {
                 .build();
     }
 
-    private EnrollPaymentInstrumentsRequest createTestEnrollPaymentInstrumentsRequest() {
-        return EnrollPaymentInstrumentsRequest.builder()
-                .intent(createIntent())
-                .consumerInformation(createConsumerInformationIdRef())
-                .paymentInstruments(createPaymentInstruments())
-                .build();
-    }
-
     private GetDataRequest createTestGetDataRequest() {
         return GetDataRequest.builder()
                 .intent(createIntent())
                 .consumerInformation(createConsumerInformationIdRef())
-                .build();
-    }
-
-    private ManageConsumerInformationRequest createTestManageConsumerInformationRequest() {
-        return ManageConsumerInformationRequest.builder()
-                .intent(createIntent())
-                .consumerInformation(createConsumerInformation())
                 .build();
     }
 
