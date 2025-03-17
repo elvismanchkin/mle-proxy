@@ -1,18 +1,23 @@
 package dev.example.visa.messaging;
 
 import dev.example.visa.client.VisaClickToPayClient;
+import dev.example.visa.model.CardPaymentInstrument;
 import dev.example.visa.model.ConsumerInformation;
 import dev.example.visa.model.ConsumerInformationIdRef;
+import dev.example.visa.model.DeletePaymentInstrumentsRequest;
 import dev.example.visa.model.EnrollDataRequest;
 import dev.example.visa.model.GetDataRequest;
 import dev.example.visa.model.GetDataResponse;
 import dev.example.visa.model.Intent;
+import dev.example.visa.model.ManageConsumerInformationRequest;
 import dev.example.visa.model.RequestIdResponse;
-import io.micronaut.context.annotation.Replaces;
+import dev.example.visa.model.RequestStatusResponse;
+import io.micronaut.context.annotation.Property;
+import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -22,8 +27,16 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@MicronautTest
+@MicronautTest(environments = {"test"}, transactional = false)
+@Property(name = "rabbitmq.host", value = "localhost")
+@Property(name = "rabbitmq.port", value = "5672")
+@Property(name = "rabbitmq.username", value = "guest")
+@Property(name = "rabbitmq.password", value = "guest")
+@Property(name = "visa.security.vault.enabled", value = "false")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class VisaClickToPayMessageHandlerTest {
 
     @Inject
@@ -62,6 +75,53 @@ class VisaClickToPayMessageHandlerTest {
                 .verifyComplete();
     }
 
+    @Test
+    void testManageConsumerInformation() {
+        // Arrange
+        ManageConsumerInformationRequest request = createTestManageConsumerRequest();
+        String correlationId = UUID.randomUUID().toString();
+
+        // Act & Assert
+        StepVerifier.create(messageHandler.manageConsumerInformation(request, correlationId))
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertNotNull(response.requestTraceId());
+                    assertEquals("test-request-id", response.requestTraceId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void testDeletePaymentInstruments() {
+        // Arrange
+        DeletePaymentInstrumentsRequest request = createTestDeletePaymentRequest();
+        String correlationId = UUID.randomUUID().toString();
+
+        // Act & Assert
+        StepVerifier.create(messageHandler.deletePaymentInstruments(request, correlationId))
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertNotNull(response.requestTraceId());
+                    assertEquals("test-request-id", response.requestTraceId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void testRequestStatus() {
+        // Arrange
+        String requestTraceId = "test-trace-id";
+        String correlationId = UUID.randomUUID().toString();
+
+        // Act & Assert
+        StepVerifier.create(messageHandler.requestStatus(requestTraceId, correlationId))
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals("COMPLETED", response.status());
+                })
+                .verifyComplete();
+    }
+
     // Helper methods to create test data
     private EnrollDataRequest createTestEnrollDataRequest() {
         return EnrollDataRequest.builder()
@@ -91,62 +151,70 @@ class VisaClickToPayMessageHandlerTest {
                 .build();
     }
 
-    // Mock implementation of the Visa client for testing
-    @Singleton
-    @Replaces(VisaClickToPayClient.class)
-    static class MockVisaClient implements VisaClickToPayClient {
+    private ManageConsumerInformationRequest createTestManageConsumerRequest() {
+        return ManageConsumerInformationRequest.builder()
+                .intent(Intent.builder()
+                        .type("PRODUCT_CODE")
+                        .value("CLICK_TO_PAY")
+                        .build())
+                .consumerInformation(ConsumerInformation.builder()
+                        .firstName("Jane")
+                        .lastName("Smith")
+                        .countryCode("USA")
+                        .externalConsumerID(UUID.randomUUID().toString())
+                        .build())
+                .build();
+    }
 
-        @Override
-        public Mono<RequestIdResponse> enrollPaymentInstruments(dev.example.visa.model.EnrollPaymentInstrumentsRequest request, String correlationId) {
-            return Mono.just(RequestIdResponse.builder()
-                    .requestTraceId("test-request-id")
-                    .build());
-        }
+    private DeletePaymentInstrumentsRequest createTestDeletePaymentRequest() {
+        CardPaymentInstrument cardInstrument = CardPaymentInstrument.builder()
+                .type("CARD")
+                .accountNumber("4111111145551140")
+                .build();
 
-        @Override
-        public Mono<RequestIdResponse> enrollData(EnrollDataRequest request, String correlationId) {
-            return Mono.just(RequestIdResponse.builder()
-                    .requestTraceId("test-request-id")
-                    .build());
-        }
+        return DeletePaymentInstrumentsRequest.builder()
+                .intent(Intent.builder()
+                        .type("PRODUCT_CODE")
+                        .value("CLICK_TO_PAY")
+                        .build())
+                .paymentInstruments(cardInstrument)
+                .consumerInformation(ConsumerInformationIdRef.builder()
+                        .externalConsumerID(UUID.randomUUID().toString())
+                        .build())
+                .build();
+    }
 
-        @Override
-        public Mono<dev.example.visa.model.RequestStatusResponse> getRequestStatus(String requestTraceId, String correlationId) {
-            return Mono.just(dev.example.visa.model.RequestStatusResponse.builder()
-                    .status("COMPLETED")
-                    .build());
-        }
+    // Mock beans
+    @MockBean(VisaClickToPayClient.class)
+    VisaClickToPayClient visaClient() {
+        VisaClickToPayClient mock = mock(VisaClickToPayClient.class);
 
-        @Override
-        public Mono<RequestIdResponse> managePaymentInstruments(dev.example.visa.model.ManagePaymentInstrumentsRequest request, String correlationId) {
-            return Mono.just(RequestIdResponse.builder()
-                    .requestTraceId("test-request-id")
-                    .build());
-        }
+        // Set up test behavior for all methods
+        when(mock.enrollPaymentInstruments(any(), any())).thenReturn(
+                Mono.just(RequestIdResponse.builder().requestTraceId("test-request-id").build()));
 
-        @Override
-        public Mono<RequestIdResponse> manageConsumerInformation(dev.example.visa.model.ManageConsumerInformationRequest request, String correlationId) {
-            return Mono.just(RequestIdResponse.builder()
-                    .requestTraceId("test-request-id")
-                    .build());
-        }
+        when(mock.enrollData(any(), any())).thenReturn(
+                Mono.just(RequestIdResponse.builder().requestTraceId("test-request-id").build()));
 
-        @Override
-        public Mono<RequestIdResponse> deleteConsumerInformation(dev.example.visa.model.DeleteConsumerInformationRequest request, String correlationId) {
-            return Mono.just(RequestIdResponse.builder()
-                    .requestTraceId("test-request-id")
-                    .build());
-        }
+        when(mock.getRequestStatus(any(), any())).thenReturn(
+                Mono.just(RequestStatusResponse.builder().status("COMPLETED").build()));
 
-        @Override
-        public Mono<RequestIdResponse> deletePaymentInstruments(dev.example.visa.model.DeletePaymentInstrumentsRequest request, String correlationId) {
-            return Mono.just(RequestIdResponse.builder()
-                    .requestTraceId("test-request-id")
-                    .build());
-        }
+        when(mock.managePaymentInstruments(any(), any())).thenReturn(
+                Mono.just(RequestIdResponse.builder().requestTraceId("test-request-id").build()));
 
-        @Override
-        public Mono<GetDataResponse> getData(GetDataRequest request, String correlationId) {
+        when(mock.manageConsumerInformation(any(), any())).thenReturn(
+                Mono.just(RequestIdResponse.builder().requestTraceId("test-request-id").build()));
+
+        when(mock.deleteConsumerInformation(any(), any())).thenReturn(
+                Mono.just(RequestIdResponse.builder().requestTraceId("test-request-id").build()));
+
+        when(mock.deletePaymentInstruments(any(), any())).thenReturn(
+                Mono.just(RequestIdResponse.builder().requestTraceId("test-request-id").build()));
+
+        // Set up getData behavior with more specific response
+        when(mock.getData(any(), any())).thenAnswer(invocation -> {
+            GetDataRequest request = invocation.getArgument(0);
+
             GetDataResponse.DataItem item = GetDataResponse.DataItem.builder()
                     .intent(request.intent())
                     .consumerInformation(ConsumerInformation.builder()
@@ -160,6 +228,13 @@ class VisaClickToPayMessageHandlerTest {
             return Mono.just(GetDataResponse.builder()
                     .data(List.of(item))
                     .build());
-        }
+        });
+
+        return mock;
+    }
+
+    // Helper methods
+    private <T> T any() {
+        return null; // Mockito will substitute this with any() matcher
     }
 }
