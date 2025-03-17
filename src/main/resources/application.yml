@@ -15,6 +15,15 @@ rabbitmq:
   uri: ${RABBITMQ_URI:amqp://localhost:5672}
   username: ${RABBITMQ_USERNAME:guest}
   password: ${RABBITMQ_PASSWORD:guest}
+  exchange:
+    name: visa-click-to-pay-exchange
+  rpc:
+    request-queue: visa-click-to-pay-requests
+    timeout: 30s
+  connection-recovery:
+    enabled: true
+    max-attempts: 5
+    interval: 5s
 
 visa:
   api:
@@ -48,4 +57,29 @@ logging:
     root: INFO
     dev.example.visa: DEBUG
     io.micronaut.http.client: INFO
+    com.rabbitmq: INFO
   pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId},%X{spanId}] - %msg%n"
+
+# OpenTelemetry configuration
+otel:
+  exporter:
+    otlp:
+      enabled: ${OTEL_ENABLED:false}
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: none
+  propagators: tracecontext, baggage
+
+# Metrics
+endpoints:
+  all:
+    enabled: true
+    sensitive: false
+  health:
+    details-visible: ANONYMOUS
+  prometheus:
+    sensitive: false
+  loggers:
+    write-sensitive: false

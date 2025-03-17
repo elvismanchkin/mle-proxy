@@ -19,7 +19,7 @@
         <micronaut.version>4.7.6</micronaut.version>
         <micronaut.runtime>netty</micronaut.runtime>
         <micronaut.aot.enabled>false</micronaut.aot.enabled>
-        <micronaut.aot.packageName>dev.example.aot.generated</micronaut.aot.packageName>
+        <micronaut.aot.packageName>dev.example.visa.aot.generated</micronaut.aot.packageName>
         <micronaut.test.resources.enabled>true</micronaut.test.resources.enabled>
         <openrewrite.maven.plugin.version>5.43.4</openrewrite.maven.plugin.version>
         <rewrite-micronaut.version>2.8.4</rewrite-micronaut.version>
@@ -128,6 +128,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+            <version>1.5.17</version>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.4</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>

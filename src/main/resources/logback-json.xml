@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <!-- Basic application identification -->
+            <customFields>{"application":"visa-click-to-pay-proxy"}</customFields>
+
+            <!-- Field naming customization -->
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <message>message</message>
+                <logger>logger</logger>
+                <thread>thread</thread>
+                <level>level</level>
+                <stackTrace>exception</stackTrace>
+            </fieldNames>
+
+            <!-- Include context values for distributed tracing -->
+            <includeMdcKeyName>traceId</includeMdcKeyName>
+            <includeMdcKeyName>spanId</includeMdcKeyName>
+            <includeMdcKeyName>correlationId</includeMdcKeyName>
+
+            <!-- Mask sensitive data patterns -->
+            <maskPatterns>
+                <!-- Credit Card Numbers with or without dashes/spaces -->
+                <pattern>(\d{4}[-\s]?){3}\d{4}</pattern>
+                <!-- SSN -->
+                <pattern>\b\d{3}-\d{2}-\d{4}\b</pattern>
+                <!-- API Keys -->
+                <pattern>(?i)(api|auth)[-_]?key[^a-zA-Z0-9]*[=:]["']?([a-zA-Z0-9]{20,})</pattern>
+                <!-- Passwords in various forms -->
+                <pattern>(?i)(password|passwd|pwd)([^a-zA-Z0-9])*[=:]["']?([^\s"']+)</pattern>
+                <!-- Auth tokens -->
+                <pattern>(?i)(bearer|token|auth|authorization)([^a-zA-Z0-9])*[=:]["']?([^\s"']+)</pattern>
+                <!-- Account numbers -->
+                <pattern>(?i)(account|acct)([^a-zA-Z0-9])*[=:]["']?(\d{8,})</pattern>
+            </maskPatterns>
+
+            <!-- JSON field masking for specific field names -->
+            <jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+                <defaultMaskValue>[MASKED]</defaultMaskValue>
+                <path>
+                    <!-- Simple paths for top-level fields -->
+                    <fieldName>password</fieldName>
+                    <fieldName>passwd</fieldName>
+                    <fieldName>secret</fieldName>
+                    <fieldName>authorization</fieldName>
+                    <fieldName>apiKey</fieldName>
+                    <fieldName>api_key</fieldName>
+                    <fieldName>accountNumber</fieldName>
+                    <fieldName>account_number</fieldName>
+                    <fieldName>cardNumber</fieldName>
+                    <fieldName>card_number</fieldName>
+                    <fieldName>ssn</fieldName>
+                    <fieldName>socialSecurityNumber</fieldName>
+                    <fieldName>token</fieldName>
+
+                    <!-- Nested paths for objects -->
+                    <fieldName>*.password</fieldName>
+                    <fieldName>*.secret</fieldName>
+                    <fieldName>*.accountNumber</fieldName>
+                    <fieldName>*.apiKey</fieldName>
+                    <fieldName>*.credentials</fieldName>
+                    <fieldName>*.cardNumber</fieldName>
+                    <fieldName>paymentInstruments.*.accountNumber</fieldName>
+                    <fieldName>cardPaymentInstrument.accountNumber</fieldName>
+                    <fieldName>bankAccountPaymentInstrument.accountNumber</fieldName>
+                </path>
+            </jsonGeneratorDecorator>
+        </encoder>
+    </appender>
+
+    <!-- Configure specific package logging levels -->
+    <logger name="dev.example.visa" level="INFO"/>
+    <logger name="io.micronaut" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="com.rabbitmq" level="INFO"/>
+
+    <!-- Log sensitive operations at TRACE level to avoid exposing data -->
+    <logger name="dev.example.visa.client" level="INFO"/>
+    <logger name="dev.example.visa.security" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="JSON"/>
+    </root>
+</configuration>
