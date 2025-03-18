@@ -7,8 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record NationalIdentifier(
-        String type,
-        String value
-) {
-}
+public record NationalIdentifier(String type, String value) {}

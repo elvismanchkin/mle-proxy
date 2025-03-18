@@ -3,6 +3,8 @@ micronaut:
   application:
     name: visa-click-to-pay-proxy-test
   server:
+    ssl:
+      enabled: false
     port: -1  # Random port for tests
 
   # Disable actual HTTP client since we're mocking it
@@ -20,13 +22,17 @@ micronaut:
 # Visa API config is simplified since we're mocking
 visa:
   api:
-    base-url: http://mockserver:8080
+    base-url: "/"
     retry:
       max-attempts: 2
       delay: 100ms
 
   # Disable Vault for tests
   security:
+    ssl:
+      key-password: password
+      truststore-password: password
+      keystore-password: password
     vault:
       enabled: false
 

@@ -7,7 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record RequestIdResponse(
-        String requestTraceId
-) {
-}
+public record RequestIdResponse(String requestTraceId) {}

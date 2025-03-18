@@ -24,6 +24,4 @@ public record DeletePaymentInstrumentsRequestDto(
         // Bank account fields (for deletion identification)
         String accountNumber,
         String accountName,
-        String accountNumberType
-) {
-}
+        String accountNumberType) {}

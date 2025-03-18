@@ -50,8 +50,8 @@ public class VisaClickToPayPerformanceTest {
     private static final Logger LOG = LoggerFactory.getLogger(VisaClickToPayPerformanceTest.class);
 
     @Container
-    static RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3.11-management")
-            .withExposedPorts(5672, 15672);
+    static RabbitMQContainer rabbitMQContainer =
+            new RabbitMQContainer("rabbitmq:3.11-management").withExposedPorts(5672, 15672);
 
     @Inject
     ApplicationContext context;
@@ -90,22 +90,23 @@ public class VisaClickToPayPerformanceTest {
         EnrollDataRequestDto request = TestDataFactory.createEnrollDataRequestDto(testConsumerId);
 
         // Warm-up
-        coordinator.enrollDataMapped(
-                coordinator.getVisaMapper().mapToEnrollDataRequest(request)).block();
+        coordinator
+                .enrollDataMapped(coordinator.getVisaMapper().mapToEnrollDataRequest(request))
+                .block();
 
         // Measure direct API latency
         long directStart = System.currentTimeMillis();
 
         for (int i = 0; i < REQUEST_COUNT; i++) {
-            coordinator.enrollDataMapped(
-                    coordinator.getVisaMapper().mapToEnrollDataRequest(request)).block();
+            coordinator
+                    .enrollDataMapped(coordinator.getVisaMapper().mapToEnrollDataRequest(request))
+                    .block();
         }
 
         long directDuration = System.currentTimeMillis() - directStart;
         double directAvg = (double) directDuration / REQUEST_COUNT;
 
-        LOG.info("Direct API: {} requests in {}ms (avg: {}ms/request)",
-                REQUEST_COUNT, directDuration, directAvg);
+        LOG.info("Direct API: {} requests in {}ms (avg: {}ms/request)", REQUEST_COUNT, directDuration, directAvg);
 
         // Measure RabbitMQ performance
         String responseQueue = rabbitClient.declareQueue();
@@ -122,8 +123,8 @@ public class VisaClickToPayPerformanceTest {
                     byte[] responseBytes = rabbitClient.receiveResponse(responseQueue, correlationId, 30);
 
                     if (responseBytes != null) {
-                        EnrollmentResponseDto response = rabbitClient.deserialize(
-                                responseBytes, EnrollmentResponseDto.class);
+                        EnrollmentResponseDto response =
+                                rabbitClient.deserialize(responseBytes, EnrollmentResponseDto.class);
 
                         if (response != null) {
                             long end = System.currentTimeMillis();
@@ -147,12 +148,7 @@ public class VisaClickToPayPerformanceTest {
         for (int i = 0; i < REQUEST_COUNT; i++) {
             String correlationId = "perf-" + i;
 
-            rabbitClient.sendRequest(
-                    "visa-click-to-pay-exchange",
-                    "enrollData",
-                    correlationId,
-                    responseQueue,
-                    request);
+            rabbitClient.sendRequest("visa-click-to-pay-exchange", "enrollData", correlationId, responseQueue, request);
         }
 
         // Wait for all responses
@@ -162,8 +158,7 @@ public class VisaClickToPayPerformanceTest {
         long rabbitDuration = System.currentTimeMillis() - rabbitStart;
         double rabbitAvg = (double) rabbitDuration / REQUEST_COUNT;
 
-        LOG.info("RabbitMQ API: {} requests in {}ms (avg: {}ms/request)",
-                REQUEST_COUNT, rabbitDuration, rabbitAvg);
+        LOG.info("RabbitMQ API: {} requests in {}ms (avg: {}ms/request)", REQUEST_COUNT, rabbitDuration, rabbitAvg);
 
         // Compare performance
         LOG.info("Performance comparison:");
@@ -175,8 +170,7 @@ public class VisaClickToPayPerformanceTest {
         assertTrue(rabbitAvg > directAvg, "Expected RabbitMQ to be slower than direct API calls");
 
         // But it shouldn't be excessively slower (e.g., not more than 10x slower)
-        assertTrue(rabbitAvg / directAvg < 10,
-                "RabbitMQ is excessively slower than direct API calls");
+        assertTrue(rabbitAvg / directAvg < 10, "RabbitMQ is excessively slower than direct API calls");
     }
 
     @Test
@@ -200,8 +194,9 @@ public class VisaClickToPayPerformanceTest {
             long start = System.currentTimeMillis();
 
             List<GetDataResponse> results = Flux.fromIterable(requests)
-                    .flatMap(request ->
-                                    mockVisaClient.getData(request, UUID.randomUUID().toString()),
+                    .flatMap(
+                            request -> mockVisaClient.getData(
+                                    request, UUID.randomUUID().toString()),
                             concurrency) // Set concurrency level
                     .collectList()
                     .block(Duration.ofSeconds(30));
@@ -211,8 +206,12 @@ public class VisaClickToPayPerformanceTest {
             // Calculate throughput
             double throughput = requestsPerConcurrency * 1000.0 / duration; // requests per second
 
-            LOG.info("Concurrency level {}: processed {} requests in {}ms (throughput: {}/s)",
-                    concurrency, requestsPerConcurrency, duration, String.format("%.2f", throughput));
+            LOG.info(
+                    "Concurrency level {}: processed {} requests in {}ms (throughput: {}/s)",
+                    concurrency,
+                    requestsPerConcurrency,
+                    duration,
+                    String.format("%.2f", throughput));
 
             // Verify all requests were processed
             assertNotNull(results);
@@ -266,33 +265,30 @@ public class VisaClickToPayPerformanceTest {
         assertEquals(REQUEST_COUNT, processedCount.get());
 
         // Memory usage should not grow excessively (e.g., less than 100MB)
-        assertTrue((memoryAfter - memoryBefore) < 100 * 1024 * 1024,
-                "Memory usage grew excessively");
+        assertTrue((memoryAfter - memoryBefore) < 100 * 1024 * 1024, "Memory usage grew excessively");
     }
 
     // Helper methods
 
     private void setupMockResponses() {
         // Mock responses for getData
-        when(mockVisaClient.getData(any(GetDataRequest.class), anyString()))
-                .thenAnswer(invocation -> {
-                    GetDataRequest request = invocation.getArgument(0);
-                    String consumerId = request.consumerInformation().externalConsumerID();
+        when(mockVisaClient.getData(any(GetDataRequest.class), anyString())).thenAnswer(invocation -> {
+            GetDataRequest request = invocation.getArgument(0);
+            String consumerId = request.consumerInformation().externalConsumerID();
 
-                    // Simulate some processing delay (50ms)
-                    return Mono.delay(Duration.ofMillis(50))
-                            .then(Mono.just(MockResponseUtil.createMockGetDataResponse(consumerId)));
-                });
+            // Simulate some processing delay (50ms)
+            return Mono.delay(Duration.ofMillis(50))
+                    .then(Mono.just(MockResponseUtil.createMockGetDataResponse(consumerId)));
+        });
 
         // Mock responses for enrollData
-        when(mockVisaClient.enrollData(any(), anyString()))
-                .thenAnswer(invocation -> {
-                    // Simulate some processing delay (20ms)
-                    return Mono.delay(Duration.ofMillis(20))
-                            .then(Mono.just(RequestIdResponse.builder()
-                                    .requestTraceId(UUID.randomUUID().toString())
-                                    .build()));
-                });
+        when(mockVisaClient.enrollData(any(), anyString())).thenAnswer(invocation -> {
+            // Simulate some processing delay (20ms)
+            return Mono.delay(Duration.ofMillis(20))
+                    .then(Mono.just(RequestIdResponse.builder()
+                            .requestTraceId(UUID.randomUUID().toString())
+                            .build()));
+        });
     }
 
     private List<GetDataRequest> createTestRequests(int count) {

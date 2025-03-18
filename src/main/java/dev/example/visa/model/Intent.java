@@ -7,5 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record Intent(String type, String value) {
-}
+public record Intent(String type, String value) {}

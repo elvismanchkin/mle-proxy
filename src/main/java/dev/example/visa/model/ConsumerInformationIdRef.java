@@ -7,7 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record ConsumerInformationIdRef(
-        String externalConsumerID
-) {
-}
+public record ConsumerInformationIdRef(String externalConsumerID) {}

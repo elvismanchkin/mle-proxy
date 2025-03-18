@@ -20,6 +20,4 @@ public record BankAccountPaymentInstrument(
         String currencyCode,
         String accountNumber,
         String accountNumberType,
-        String bankIdentifierCode
-) {
-}
+        String bankIdentifierCode) {}

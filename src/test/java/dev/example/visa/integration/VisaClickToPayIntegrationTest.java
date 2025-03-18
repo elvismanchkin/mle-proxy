@@ -46,7 +46,6 @@ import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -67,6 +66,7 @@ import java.util.concurrent.TimeoutException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
@@ -210,7 +210,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -260,7 +261,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -310,7 +312,8 @@ public class VisaClickToPayIntegrationTest {
                         responseJson, RequestStatusResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -351,7 +354,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -400,7 +404,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -451,7 +456,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -500,7 +506,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -549,7 +556,8 @@ public class VisaClickToPayIntegrationTest {
                 ConsumerDataResponseDto response = objectMapper.readValue(responseJson, ConsumerDataResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -603,7 +611,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -654,7 +663,8 @@ public class VisaClickToPayIntegrationTest {
             } catch (Exception e) {
                 LOG.error("Error processing response", e);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Send multiple requests
         for (int i = 0; i < REQUEST_COUNT; i++) {
@@ -712,7 +722,8 @@ public class VisaClickToPayIntegrationTest {
                 ConsumerDataResponseDto response = objectMapper.readValue(responseJson, ConsumerDataResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(
@@ -780,7 +791,7 @@ public class VisaClickToPayIntegrationTest {
             // If we have a concrete result (true for timeout detected, false for unexpected response)
             if (result != null && !result) {
                 // We got a response when we expected a timeout
-                assertTrue(false, "Received response when timeout was expected");
+                fail("Received response when timeout was expected");
             }
         } catch (TimeoutException e) {
             // This is also acceptable - the CompletableFuture itself timed out
@@ -824,7 +835,8 @@ public class VisaClickToPayIntegrationTest {
                 EnrollmentResponseDto response = objectMapper.readValue(responseJson, EnrollmentResponseDto.class);
                 responseFuture.complete(response);
             }
-        }, consumerTag -> {});
+        }, consumerTag -> {
+        });
 
         // Publish request
         rabbitChannel.basicPublish(

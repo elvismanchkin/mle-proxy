@@ -2,14 +2,12 @@ package dev.example.visa.integration;
 
 import dev.example.visa.client.VisaClickToPayClient;
 import dev.example.visa.dto.EnrollmentResponseDto;
-import dev.example.visa.dto.GetDataRequestDto;
-import dev.example.visa.dto.RequestStatusResponseDto;
 import dev.example.visa.model.GetDataRequest;
 import dev.example.visa.model.GetDataResponse;
 import dev.example.visa.model.RequestIdResponse;
-import dev.example.visa.model.RequestStatusResponse;
 import dev.example.visa.util.MockResponseUtil;
 import io.micronaut.context.ApplicationContext;
+import io.micronaut.context.annotation.Property;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +21,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +32,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,9 +41,12 @@ import static org.mockito.Mockito.when;
 /**
  * Tests for concurrent load and performance characteristics.
  */
-@MicronautTest
+@MicronautTest(environments = "test")
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Property(name = "micronaut.otel.enabled", value = "false")
+@Property(name = "tracing.opentelemetry.enabled", value = "false")
+@Property(name = "rabbitmq.uri", value = "amqp://guest:guest@localhost:5672")
 public class VisaClickToPayConcurrentLoadTest {
     private static final Logger LOG = LoggerFactory.getLogger(VisaClickToPayConcurrentLoadTest.class);
 

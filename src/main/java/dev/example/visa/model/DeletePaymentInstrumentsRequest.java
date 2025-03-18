@@ -8,8 +8,4 @@ import lombok.Builder;
 @Introspected
 @Builder
 public record DeletePaymentInstrumentsRequest(
-        Intent intent,
-        Object paymentInstruments,
-        ConsumerInformationIdRef consumerInformation
-) {
-}
+        Intent intent, Object paymentInstruments, ConsumerInformationIdRef consumerInformation) {}

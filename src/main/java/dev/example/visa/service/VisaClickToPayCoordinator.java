@@ -22,7 +22,6 @@ import dev.example.visa.model.ManageConsumerInformationRequest;
 import dev.example.visa.model.ManagePaymentInstrumentsRequest;
 import dev.example.visa.model.RequestIdResponse;
 import dev.example.visa.model.RequestStatusResponse;
-import io.micronaut.core.annotation.Introspected;
 import io.micronaut.tracing.annotation.NewSpan;
 import io.micronaut.tracing.annotation.SpanTag;
 import jakarta.inject.Singleton;
@@ -50,9 +49,8 @@ public class VisaClickToPayCoordinator {
     @Getter
     private final VisaMapper visaMapper;
 
-    public VisaClickToPayCoordinator(VisaClickToPayService visaService,
-                                     VisaClickToPayProducer visaProducer,
-                                     VisaMapper visaMapper) {
+    public VisaClickToPayCoordinator(
+            VisaClickToPayService visaService, VisaClickToPayProducer visaProducer, VisaMapper visaMapper) {
         this.visaService = visaService;
         this.visaProducer = visaProducer;
         this.visaMapper = visaMapper;
@@ -68,7 +66,8 @@ public class VisaClickToPayCoordinator {
     }
 
     @NewSpan("visa.enrollPaymentInstruments")
-    public Mono<RequestIdResponse> enrollPaymentInstruments(@SpanTag("request") EnrollPaymentInstrumentsRequest request) {
+    public Mono<RequestIdResponse> enrollPaymentInstruments(
+            @SpanTag("request") EnrollPaymentInstrumentsRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Enrolling payment instruments with correlationId: {}", correlationId);
         return visaService.enrollPaymentInstruments(request, correlationId);
@@ -77,33 +76,38 @@ public class VisaClickToPayCoordinator {
     @NewSpan("visa.getRequestStatus")
     public Mono<RequestStatusResponse> getRequestStatus(@SpanTag("requestTraceId") String requestTraceId) {
         String correlationId = visaMapper.generateCorrelationId();
-        log.info("Checking request status for requestTraceId: {} with correlationId: {}", requestTraceId, correlationId);
+        log.info(
+                "Checking request status for requestTraceId: {} with correlationId: {}", requestTraceId, correlationId);
         return visaService.getRequestStatus(requestTraceId, correlationId);
     }
 
     @NewSpan("visa.managePaymentInstruments")
-    public Mono<RequestIdResponse> managePaymentInstruments(@SpanTag("request") ManagePaymentInstrumentsRequest request) {
+    public Mono<RequestIdResponse> managePaymentInstruments(
+            @SpanTag("request") ManagePaymentInstrumentsRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Managing payment instruments with correlationId: {}", correlationId);
         return visaService.managePaymentInstruments(request, correlationId);
     }
 
     @NewSpan("visa.manageConsumerInformation")
-    public Mono<RequestIdResponse> manageConsumerInformation(@SpanTag("request") ManageConsumerInformationRequest request) {
+    public Mono<RequestIdResponse> manageConsumerInformation(
+            @SpanTag("request") ManageConsumerInformationRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Managing consumer information with correlationId: {}", correlationId);
         return visaService.manageConsumerInformation(request, correlationId);
     }
 
     @NewSpan("visa.deleteConsumerInformation")
-    public Mono<RequestIdResponse> deleteConsumerInformation(@SpanTag("request") DeleteConsumerInformationRequest request) {
+    public Mono<RequestIdResponse> deleteConsumerInformation(
+            @SpanTag("request") DeleteConsumerInformationRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Deleting consumer information with correlationId: {}", correlationId);
         return visaService.deleteConsumerInformation(request, correlationId);
     }
 
     @NewSpan("visa.deletePaymentInstruments")
-    public Mono<RequestIdResponse> deletePaymentInstruments(@SpanTag("request") DeletePaymentInstrumentsRequest request) {
+    public Mono<RequestIdResponse> deletePaymentInstruments(
+            @SpanTag("request") DeletePaymentInstrumentsRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Deleting payment instruments with correlationId: {}", correlationId);
         return visaService.deletePaymentInstruments(request, correlationId);
@@ -126,7 +130,8 @@ public class VisaClickToPayCoordinator {
     }
 
     @NewSpan("visa.enrollPaymentInstrumentsMapped")
-    public Mono<EnrollmentResponseDto> enrollPaymentInstrumentsMapped(@SpanTag("request") EnrollPaymentInstrumentsRequest request) {
+    public Mono<EnrollmentResponseDto> enrollPaymentInstrumentsMapped(
+            @SpanTag("request") EnrollPaymentInstrumentsRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Enrolling payment instruments (mapped) with correlationId: {}", correlationId);
         return visaService.enrollPaymentInstrumentsMapped(request, correlationId);
@@ -135,33 +140,40 @@ public class VisaClickToPayCoordinator {
     @NewSpan("visa.getRequestStatusMapped")
     public Mono<RequestStatusResponseDto> getRequestStatusMapped(@SpanTag("requestTraceId") String requestTraceId) {
         String correlationId = visaMapper.generateCorrelationId();
-        log.info("Checking request status (mapped) for requestTraceId: {} with correlationId: {}", requestTraceId, correlationId);
+        log.info(
+                "Checking request status (mapped) for requestTraceId: {} with correlationId: {}",
+                requestTraceId,
+                correlationId);
         return visaService.getRequestStatusMapped(requestTraceId, correlationId);
     }
 
     @NewSpan("visa.managePaymentInstrumentsMapped")
-    public Mono<EnrollmentResponseDto> managePaymentInstrumentsMapped(@SpanTag("request") ManagePaymentInstrumentsRequest request) {
+    public Mono<EnrollmentResponseDto> managePaymentInstrumentsMapped(
+            @SpanTag("request") ManagePaymentInstrumentsRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Managing payment instruments (mapped) with correlationId: {}", correlationId);
         return visaService.managePaymentInstrumentsMapped(request, correlationId);
     }
 
     @NewSpan("visa.manageConsumerInformationMapped")
-    public Mono<EnrollmentResponseDto> manageConsumerInformationMapped(@SpanTag("request") ManageConsumerInformationRequest request) {
+    public Mono<EnrollmentResponseDto> manageConsumerInformationMapped(
+            @SpanTag("request") ManageConsumerInformationRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Managing consumer information (mapped) with correlationId: {}", correlationId);
         return visaService.manageConsumerInformationMapped(request, correlationId);
     }
 
     @NewSpan("visa.deleteConsumerInformationMapped")
-    public Mono<EnrollmentResponseDto> deleteConsumerInformationMapped(@SpanTag("request") DeleteConsumerInformationRequest request) {
+    public Mono<EnrollmentResponseDto> deleteConsumerInformationMapped(
+            @SpanTag("request") DeleteConsumerInformationRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Deleting consumer information (mapped) with correlationId: {}", correlationId);
         return visaService.deleteConsumerInformationMapped(request, correlationId);
     }
 
     @NewSpan("visa.deletePaymentInstrumentsMapped")
-    public Mono<EnrollmentResponseDto> deletePaymentInstrumentsMapped(@SpanTag("request") DeletePaymentInstrumentsRequest request) {
+    public Mono<EnrollmentResponseDto> deletePaymentInstrumentsMapped(
+            @SpanTag("request") DeletePaymentInstrumentsRequest request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Deleting payment instruments (mapped) with correlationId: {}", correlationId);
         return visaService.deletePaymentInstrumentsMapped(request, correlationId);
@@ -184,7 +196,8 @@ public class VisaClickToPayCoordinator {
     }
 
     @NewSpan("visa.enrollPaymentInstrumentsAsync")
-    public Mono<EnrollmentResponseDto> enrollPaymentInstrumentsAsync(@SpanTag("request") EnrollPaymentInstrumentsRequestDto request) {
+    public Mono<EnrollmentResponseDto> enrollPaymentInstrumentsAsync(
+            @SpanTag("request") EnrollPaymentInstrumentsRequestDto request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Enrolling payment instruments asynchronously with correlationId: {}", correlationId);
         return visaProducer.enrollPaymentInstruments(request, correlationId);
@@ -193,33 +206,40 @@ public class VisaClickToPayCoordinator {
     @NewSpan("visa.getRequestStatusAsync")
     public Mono<RequestStatusResponseDto> getRequestStatusAsync(@SpanTag("requestTraceId") String requestTraceId) {
         String correlationId = visaMapper.generateCorrelationId();
-        log.info("Checking request status asynchronously for requestTraceId: {} with correlationId: {}", requestTraceId, correlationId);
+        log.info(
+                "Checking request status asynchronously for requestTraceId: {} with correlationId: {}",
+                requestTraceId,
+                correlationId);
         return visaProducer.requestStatus(requestTraceId, correlationId);
     }
 
     @NewSpan("visa.managePaymentInstrumentsAsync")
-    public Mono<EnrollmentResponseDto> managePaymentInstrumentsAsync(@SpanTag("request") ManagePaymentInstrumentsRequestDto request) {
+    public Mono<EnrollmentResponseDto> managePaymentInstrumentsAsync(
+            @SpanTag("request") ManagePaymentInstrumentsRequestDto request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Managing payment instruments asynchronously with correlationId: {}", correlationId);
         return visaProducer.managePaymentInstruments(request, correlationId);
     }
 
     @NewSpan("visa.manageConsumerInformationAsync")
-    public Mono<EnrollmentResponseDto> manageConsumerInformationAsync(@SpanTag("request") ManageConsumerInformationRequestDto request) {
+    public Mono<EnrollmentResponseDto> manageConsumerInformationAsync(
+            @SpanTag("request") ManageConsumerInformationRequestDto request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Managing consumer information asynchronously with correlationId: {}", correlationId);
         return visaProducer.manageConsumerInformation(request, correlationId);
     }
 
     @NewSpan("visa.deleteConsumerInformationAsync")
-    public Mono<EnrollmentResponseDto> deleteConsumerInformationAsync(@SpanTag("request") DeleteConsumerInformationRequestDto request) {
+    public Mono<EnrollmentResponseDto> deleteConsumerInformationAsync(
+            @SpanTag("request") DeleteConsumerInformationRequestDto request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Deleting consumer information asynchronously with correlationId: {}", correlationId);
         return visaProducer.deleteConsumerInformation(request, correlationId);
     }
 
     @NewSpan("visa.deletePaymentInstrumentsAsync")
-    public Mono<EnrollmentResponseDto> deletePaymentInstrumentsAsync(@SpanTag("request") DeletePaymentInstrumentsRequestDto request) {
+    public Mono<EnrollmentResponseDto> deletePaymentInstrumentsAsync(
+            @SpanTag("request") DeletePaymentInstrumentsRequestDto request) {
         String correlationId = visaMapper.generateCorrelationId();
         log.info("Deleting payment instruments asynchronously with correlationId: {}", correlationId);
         return visaProducer.deletePaymentInstruments(request, correlationId);

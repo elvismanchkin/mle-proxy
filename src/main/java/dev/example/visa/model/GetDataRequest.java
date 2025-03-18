@@ -7,8 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record GetDataRequest(
-        Intent intent,
-        ConsumerInformationIdRef consumerInformation
-) {
-}
+public record GetDataRequest(Intent intent, ConsumerInformationIdRef consumerInformation) {}

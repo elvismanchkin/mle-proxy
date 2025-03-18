@@ -38,6 +38,4 @@ public record ManagePaymentInstrumentsRequestDto(
         String bankIdentifierCode,
 
         // Address fields
-        AddressDto billingAddress
-) {
-}
+        AddressDto billingAddress) {}

@@ -7,9 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record Consent(
-        String version,
-        String presenter,
-        String timeOfConsent
-) {
-}
+public record Consent(String version, String presenter, String timeOfConsent) {}

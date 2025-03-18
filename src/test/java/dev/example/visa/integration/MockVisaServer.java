@@ -15,6 +15,7 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.runtime.server.EmbeddedServer;
 import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,8 @@ import java.util.regex.Pattern;
  * This server allows dynamic configuration of mock responses for different endpoints.
  */
 @Singleton
-@Controller
+@Controller("/")
+@Slf4j
 @Requires(env = "test")
 @Property(name = "rabbitmq.enabled", value = "false")
 public class MockVisaServer {
@@ -116,8 +118,13 @@ public class MockVisaServer {
     @Post(value = "/visaIdCredential/v1/{endpoint}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse<?> handleVisaApiPost(HttpRequest<?> request, @PathVariable String endpoint) {
+        log.info("\uD83D\uDD25 MockVisaServer intercepted request: {}", request.getPath());
+        log.info("\uD83D\uDD25 Request Headers: {}", request.getHeaders().asMap());
+        log.info("\uD83D\uDD25 Request Body: {}", request.getBody().orElse(null));
         return handleVisaApiRequest(request, "/visaIdCredential/v1/" + endpoint);
     }
+
+
 
     /**
      * Catch-all handler for Visa API GET endpoints.

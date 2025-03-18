@@ -30,48 +30,39 @@ public interface VisaClickToPayClient {
     @Post("/visaIdCredential/v1/enrollPaymentInstruments")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestIdResponse> enrollPaymentInstruments(
-            @Body EnrollPaymentInstrumentsRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+            @Body EnrollPaymentInstrumentsRequest request, @Header("X-Correlation-Id") String correlationId);
 
     @Post("/visaIdCredential/v1/enrollData")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestIdResponse> enrollData(
-            @Body EnrollDataRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+            @Body EnrollDataRequest request, @Header("X-Correlation-Id") String correlationId);
 
     @Get("/visaIdCredential/v1/requestStatus/{requestTraceId}")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestStatusResponse> getRequestStatus(
-            @NonNull @PathVariable String requestTraceId,
-            @Header("X-Correlation-Id") String correlationId);
+            @NonNull @PathVariable String requestTraceId, @Header("X-Correlation-Id") String correlationId);
 
     @Put("/visaIdCredential/v1/managePaymentInstruments")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestIdResponse> managePaymentInstruments(
-            @Body ManagePaymentInstrumentsRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+            @Body ManagePaymentInstrumentsRequest request, @Header("X-Correlation-Id") String correlationId);
 
     @Put("/visaIdCredential/v1/manageConsumerInformation")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestIdResponse> manageConsumerInformation(
-            @Body ManageConsumerInformationRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+            @Body ManageConsumerInformationRequest request, @Header("X-Correlation-Id") String correlationId);
 
     @Post("/visaIdCredential/v1/deleteConsumerInformation")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestIdResponse> deleteConsumerInformation(
-            @Body DeleteConsumerInformationRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+            @Body DeleteConsumerInformationRequest request, @Header("X-Correlation-Id") String correlationId);
 
     @Post("/visaIdCredential/v1/deletePaymentInstruments")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
     Mono<RequestIdResponse> deletePaymentInstruments(
-            @Body DeletePaymentInstrumentsRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+            @Body DeletePaymentInstrumentsRequest request, @Header("X-Correlation-Id") String correlationId);
 
     @Post("/visaIdCredential/v1/getData")
     @Retryable(attempts = "${visa.api.retry.max-attempts:3}", delay = "${visa.api.retry.delay:1s}")
-    Mono<GetDataResponse> getData(
-            @Body GetDataRequest request,
-            @Header("X-Correlation-Id") String correlationId);
+    Mono<GetDataResponse> getData(@Body GetDataRequest request, @Header("X-Correlation-Id") String correlationId);
 }

@@ -1,6 +1,5 @@
 package dev.example.visa.dto;
 
-
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Builder;
@@ -14,6 +13,4 @@ public record DeleteConsumerInformationRequestDto(
         String intentValue,
 
         // Consumer ID
-        String consumerId
-) {
-}
+        String consumerId) {}

@@ -14,6 +14,4 @@ public record Address(
         String postalCode,
         String addressLine1,
         String addressLine2,
-        String addressLine3
-) {
-}
+        String addressLine3) {}

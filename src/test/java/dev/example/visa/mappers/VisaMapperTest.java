@@ -25,10 +25,10 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the unified Visa mapper.
@@ -160,7 +160,7 @@ class VisaMapperTest {
 
         assertNotNull(model.paymentInstruments());
         assertEquals(1, model.paymentInstruments().size());
-        assertTrue(model.paymentInstruments().get(0) instanceof CardPaymentInstrument);
+        assertInstanceOf(CardPaymentInstrument.class, model.paymentInstruments().get(0));
 
         CardPaymentInstrument card = (CardPaymentInstrument) model.paymentInstruments().get(0);
         assertEquals("CARD", card.type());
@@ -195,7 +195,7 @@ class VisaMapperTest {
         assertNotNull(model);
         assertNotNull(model.paymentInstruments());
         assertEquals(1, model.paymentInstruments().size());
-        assertTrue(model.paymentInstruments().get(0) instanceof BankAccountPaymentInstrument);
+        assertInstanceOf(BankAccountPaymentInstrument.class, model.paymentInstruments().get(0));
 
         BankAccountPaymentInstrument bank = (BankAccountPaymentInstrument) model.paymentInstruments().get(0);
         assertEquals("BANK_ACCOUNT", bank.type());
@@ -347,7 +347,7 @@ class VisaMapperTest {
         assertNotNull(cardRequest.intent());
         assertEquals("PRODUCT_CODE", cardRequest.intent().type());
         assertNotNull(cardRequest.paymentInstruments());
-        assertTrue(cardRequest.paymentInstruments() instanceof VisaMapper.DeleteCardPaymentInstrument);
+        assertInstanceOf(VisaMapper.DeleteCardPaymentInstrument.class, cardRequest.paymentInstruments());
 
         VisaMapper.DeleteCardPaymentInstrument deleteCard =
                 (VisaMapper.DeleteCardPaymentInstrument) cardRequest.paymentInstruments();
@@ -371,7 +371,7 @@ class VisaMapperTest {
         // Verify
         assertNotNull(bankRequest);
         assertNotNull(bankRequest.paymentInstruments());
-        assertTrue(bankRequest.paymentInstruments() instanceof VisaMapper.DeleteBankAccountPaymentInstrument);
+        assertInstanceOf(VisaMapper.DeleteBankAccountPaymentInstrument.class, bankRequest.paymentInstruments());
 
         VisaMapper.DeleteBankAccountPaymentInstrument deleteBank =
                 (VisaMapper.DeleteBankAccountPaymentInstrument) bankRequest.paymentInstruments();

@@ -38,6 +38,4 @@ public record EnrollPaymentInstrumentsRequestDto(
         String bankIdentifierCode,
 
         // Address fields
-        AddressDto billingAddress
-) {
-}
+        AddressDto billingAddress) {}

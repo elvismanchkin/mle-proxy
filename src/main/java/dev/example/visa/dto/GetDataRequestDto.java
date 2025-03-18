@@ -13,6 +13,4 @@ public record GetDataRequestDto(
         String intentValue,
 
         // Consumer ID
-        String consumerId
-) {
-}
+        String consumerId) {}

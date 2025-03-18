@@ -19,7 +19,7 @@ public class VaultTestContainer extends GenericContainer<VaultTestContainer> {
     private static final String VAULT_IMAGE = "hashicorp/vault:1.15";
     private static final int VAULT_PORT = 8200;
 
-    private String rootToken = "dev-only-token";
+    private final String rootToken = "dev-only-token";
 
     public VaultTestContainer() {
         super(VAULT_IMAGE);

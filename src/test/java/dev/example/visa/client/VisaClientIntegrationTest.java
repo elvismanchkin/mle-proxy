@@ -13,14 +13,17 @@ import dev.example.visa.security.VaultService;
 import dev.example.visa.util.MockResponseUtil;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Property;
+import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MutableHttpRequest;
 import io.micronaut.http.client.HttpClient;
-import io.micronaut.http.client.annotation.Client;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MockBean;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -35,7 +38,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -43,8 +45,8 @@ import static org.mockito.Mockito.when;
  * Tests for the direct Visa API client interactions.
  * This test uses a mock Visa server to verify the client functionality.
  */
+@Slf4j
 @MicronautTest
-//@MicronautTest
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Property(name = "micronaut.otel.enabled", value = "false")
@@ -59,9 +61,8 @@ public class VisaClientIntegrationTest {
     @Inject
     ApplicationContext context;
 
-    @Inject
-    @Client("/")
-    HttpClient client;
+    private HttpClient client;
+    private MockVisaServer mockVisaServer;
 
     @Inject
     VisaClickToPayClient visaClient;
@@ -73,10 +74,11 @@ public class VisaClientIntegrationTest {
     private final String testConsumerId = "test-consumer-" + UUID.randomUUID();
 
     @Container
-    static RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3.11-management")
-            .withExposedPorts(5672, 15672);
+    static RabbitMQContainer rabbitMQContainer =
+            new RabbitMQContainer("rabbitmq:3.11-management").withExposedPorts(5672, 15672);
 
-    static {
+    @BeforeAll
+    static void beforeAll() {
         rabbitMQContainer.start();
         System.setProperty("rabbitmq.uri", rabbitMQContainer.getAmqpUrl());
     }
@@ -91,21 +93,25 @@ public class VisaClientIntegrationTest {
 
     @BeforeEach
     void setup() {
-        // Reset vault service mock
         Mockito.reset(vaultService);
         when(vaultService.getApiKey()).thenReturn(Mono.just("test-api-key"));
         when(vaultService.getApiSecret()).thenReturn(Mono.just("test-api-secret"));
+        if (client == null) {
+            client = server.getApplicationContext().getBean(HttpClient.class);
+        }
+        if (mockVisaServer == null) {
+            mockVisaServer = new MockVisaServer(client, server.getURL().toString());
+        }
     }
+
+    @Value("${visa.api.base-url}")
+    String baseUrl;
 
     @Test
     void testEnrollDataRequest() {
-        // Mock API response
-        MockVisaServer mockVisaServer = new MockVisaServer(client, server.getURL().toString());
-        mockVisaServer.mockEnrollDataEndpoint(RequestIdResponse.builder()
-                .requestTraceId("test-trace-id")
-                .build());
 
-        // Create test request
+        mockVisaServer.mockEnrollDataEndpoint(new RequestIdResponse("test-trace-id"));
+        log.info("visa base url: {}", baseUrl);
         EnrollDataRequest request = EnrollDataRequest.builder()
                 .intent(Intent.builder()
                         .type("PRODUCT_CODE")
@@ -117,30 +123,27 @@ public class VisaClientIntegrationTest {
                         .lastName("Doe")
                         .countryCode("USA")
                         .build())
-                .paymentInstruments(Collections.singletonList(
-                        CardPaymentInstrument.builder()
-                                .type("CARD")
-                                .accountNumber("4111111111111111")
-                                .nameOnCard("John Doe")
-                                .expirationDate("2025-12")
-                                .build()))
+                .paymentInstruments(Collections.singletonList(CardPaymentInstrument.builder()
+                        .type("CARD")
+                        .accountNumber("4111111111111111")
+                        .nameOnCard("John Doe")
+                        .expirationDate("2025-12")
+                        .build()))
                 .build();
 
-        // Execute and verify
+        visaClient.enrollData(request, correlationId);
+
         StepVerifier.create(visaClient.enrollData(request, correlationId))
-                .expectNextMatches(response ->
-                        response.requestTraceId() != null &&
-                                response.requestTraceId().equals("test-trace-id"))
+                .expectNextMatches(r -> "test-trace-id".equals(r.requestTraceId()))
                 .verifyComplete();
     }
 
     @Test
     void testGetDataRequest() {
-        // Mock API response
-        MockVisaServer mockVisaServer = new MockVisaServer(client, server.getURL().toString());
+        MockVisaServer mockVisaServer =
+                new MockVisaServer(client, server.getURL().toString());
         mockVisaServer.mockGetDataEndpoint();
 
-        // Create test request
         GetDataRequest request = GetDataRequest.builder()
                 .intent(Intent.builder()
                         .type("PRODUCT_CODE")
@@ -151,37 +154,33 @@ public class VisaClientIntegrationTest {
                         .build())
                 .build();
 
-        // Execute and verify
         StepVerifier.create(visaClient.getData(request, correlationId))
-                .expectNextMatches(response ->
-                        response.data() != null &&
-                                !response.data().isEmpty())
+                .expectNextMatches(
+                        response -> response.data() != null && !response.data().isEmpty())
                 .verifyComplete();
     }
 
     @Test
     void testRequestStatusFetch() {
-        // Mock API response
-        MockVisaServer mockVisaServer = new MockVisaServer(client, server.getURL().toString());
+
+        MockVisaServer mockVisaServer =
+                new MockVisaServer(client, server.getURL().toString());
         mockVisaServer.mockRequestStatusEndpoint("COMPLETED");
 
         String requestTraceId = "test-trace-id-" + UUID.randomUUID();
 
-        // Execute and verify
         StepVerifier.create(visaClient.getRequestStatus(requestTraceId, correlationId))
                 .expectNextMatches(response ->
-                        response.status() != null &&
-                                response.status().equals("COMPLETED"))
+                        response.status() != null && response.status().equals("COMPLETED"))
                 .verifyComplete();
     }
 
     @Test
     void testAuthenticationHeadersAreAdded() {
-        // Setup a mock server to capture the request
-        MockVisaServer mockVisaServer = new MockVisaServer(client, server.getURL().toString());
+        MockVisaServer mockVisaServer =
+                new MockVisaServer(client, server.getURL().toString());
         mockVisaServer.captureRequestHeaders();
 
-        // Create a simple request
         GetDataRequest request = GetDataRequest.builder()
                 .intent(Intent.builder()
                         .type("PRODUCT_CODE")
@@ -192,26 +191,25 @@ public class VisaClientIntegrationTest {
                         .build())
                 .build();
 
-        // Execute the request
         visaClient.getData(request, correlationId).block();
 
-        // Verify that the authentication headers were added
         HttpRequest<?> capturedRequest = mockVisaServer.getCapturedRequest();
         assert capturedRequest != null;
-        assert capturedRequest.getHeaders().contains("Authorization");
-        assert capturedRequest.getHeaders().contains("X-Correlation-Id");
 
-        // The correlation ID should match what we provided
-        assert capturedRequest.getHeaders().get("X-Correlation-Id").equals(correlationId);
+        MutableHttpRequest<?> mutableCapturedRequest = capturedRequest.toMutableRequest();
+        log.info("Captured headers: {}", mutableCapturedRequest.getHeaders().asMap());
+
+        assert mutableCapturedRequest.getHeaders().contains("Authorization");
+        assert mutableCapturedRequest.getHeaders().contains("X-Request-Timestamp");
+        assert mutableCapturedRequest.getHeaders().get("X-Correlation-Id").equals(correlationId);
     }
 
     @Test
     void testErrorHandling() {
-        // Setup mock server to return an error
-        MockVisaServer mockVisaServer = new MockVisaServer(client, server.getURL().toString());
+        MockVisaServer mockVisaServer =
+                new MockVisaServer(client, server.getURL().toString());
         mockVisaServer.mockErrorResponse(400, "InvalidParameter", "Invalid consumer ID format");
 
-        // Create a request with an invalid consumer ID
         GetDataRequest request = GetDataRequest.builder()
                 .intent(Intent.builder()
                         .type("PRODUCT_CODE")
@@ -222,7 +220,6 @@ public class VisaClientIntegrationTest {
                         .build())
                 .build();
 
-        // Execute and verify the error is propagated correctly
         StepVerifier.create(visaClient.getData(request, correlationId))
                 .expectError(io.micronaut.http.client.exceptions.HttpClientResponseException.class)
                 .verify();
@@ -234,7 +231,6 @@ public class VisaClientIntegrationTest {
     static class MockVisaServer {
         private final HttpClient client;
         private final String baseUrl;
-        private HttpRequest<?> capturedRequest;
 
         public MockVisaServer(HttpClient client, String baseUrl) {
             this.client = client;
@@ -244,94 +240,72 @@ public class VisaClientIntegrationTest {
         public void mockEnrollDataEndpoint(RequestIdResponse response) {
             String path = "/visaIdCredential/v1/enrollData";
 
-            // Setup the mock endpoint
-            client.toBlocking().exchange(
-                    HttpRequest.POST(baseUrl + "/mock-setup", Map.of(
-                            "path", path,
-                            "status", 202,
-                            "response", response
-                    ))
-            );
+            try {
+                HttpResponse<Object> exchange = client.toBlocking()
+                        .exchange(HttpRequest.POST(
+                                baseUrl + "/mock-setup", Map.of("path", path, "status", 202, "response", response)));
+                if (exchange != null) {
+                    log.info("got response {}", exchange);
+                }
+            } catch (Exception e) {
+                log.error("failed to add mock enroll data", e);
+            }
         }
 
         public void mockGetDataEndpoint() {
             String path = "/visaIdCredential/v1/getData";
 
-            // Create a sample response with some data
             GetDataResponse response = MockResponseUtil.createMockGetDataResponse("test-consumer");
 
-            // Setup the mock endpoint
-            client.toBlocking().exchange(
-                    HttpRequest.POST(baseUrl + "/mock-setup", Map.of(
-                            "path", path,
-                            "status", 200,
-                            "response", response
-                    ))
-            );
+            client.toBlocking()
+                    .exchange(HttpRequest.POST(
+                            baseUrl + "/mock-setup", Map.of("path", path, "status", 200, "response", response)));
         }
 
         public void mockRequestStatusEndpoint(String status) {
             String path = "/visaIdCredential/v1/requestStatus/.*";
 
-            // Create a sample response
-            RequestStatusResponse response = MockResponseUtil.createMockRequestStatusResponse(
-                    status, "test-consumer");
+            RequestStatusResponse response = MockResponseUtil.createMockRequestStatusResponse(status, "test-consumer");
 
-            // Setup the mock endpoint
-            client.toBlocking().exchange(
-                    HttpRequest.POST(baseUrl + "/mock-setup", Map.of(
-                            "path", path,
-                            "status", 200,
-                            "response", response,
-                            "isRegex", true
-                    ))
-            );
+            client.toBlocking()
+                    .exchange(HttpRequest.POST(
+                            baseUrl + "/mock-setup",
+                            Map.of("path", path, "status", 200, "response", response, "isRegex", true)));
         }
 
         public void mockErrorResponse(int statusCode, String reason, String message) {
             String path = "/visaIdCredential/v1/getData";
 
-            // Create an error response
-            Map<String, Object> errorResponse = Map.of(
-                    "reason", reason,
-                    "message", message,
-                    "details", Collections.emptyList()
-            );
+            Map<String, Object> errorResponse =
+                    Map.of("reason", reason, "message", message, "details", Collections.emptyList());
 
-            // Setup the mock endpoint
-            client.toBlocking().exchange(
-                    HttpRequest.POST(baseUrl + "/mock-setup", Map.of(
-                            "path", path,
-                            "status", statusCode,
-                            "response", errorResponse
-                    ))
-            );
+            client.toBlocking()
+                    .exchange(HttpRequest.POST(
+                            baseUrl + "/mock-setup",
+                            Map.of("path", path, "status", statusCode, "response", errorResponse)));
         }
 
         public void captureRequestHeaders() {
             String path = "/visaIdCredential/v1/getData";
 
-            // Setup a request capture
-            client.toBlocking().exchange(
-                    HttpRequest.POST(baseUrl + "/mock-capture", Map.of(
-                            "path", path
-                    ))
-            );
+            client.toBlocking().exchange(HttpRequest.POST(baseUrl + "/mock-capture", Map.of("path", path)));
 
-            // The captured request will be available via a GET to /mock-captured-request
         }
 
         public HttpRequest<?> getCapturedRequest() {
-            HttpResponse<Map> response = client.toBlocking().exchange(
-                    HttpRequest.GET(baseUrl + "/mock-captured-request"),
-                    Map.class
-            );
+            HttpResponse<Map> response =
+                    client.toBlocking().exchange(HttpRequest.GET(baseUrl + "/mock-captured-request"), Map.class);
 
             if (response != null && response.body() != null) {
                 Map<String, Object> requestData = response.body();
-                // Convert the captured data back to a HttpRequest
-                // This is simplified - in real code you'd parse the headers, method, etc.
-                return HttpRequest.GET("/");
+                MutableHttpRequest<?> mutableCapturedRequest = HttpRequest.GET("/").toMutableRequest();
+
+                if (requestData.containsKey("headers")) {
+                    Map<String, String> headers = (Map<String, String>) requestData.get("headers");
+                    headers.forEach(mutableCapturedRequest::header);
+                }
+
+                return mutableCapturedRequest;
             }
 
             return null;

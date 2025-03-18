@@ -7,8 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record ManageConsumerInformationRequest(
-        Intent intent,
-        ConsumerInformation consumerInformation
-) {
-}
+public record ManageConsumerInformationRequest(Intent intent, ConsumerInformation consumerInformation) {}

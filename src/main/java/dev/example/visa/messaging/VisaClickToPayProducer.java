@@ -26,8 +26,7 @@ public interface VisaClickToPayProducer {
     @NewSpan("visa.enrollData")
     @Binding("enrollData")
     Mono<EnrollmentResponseDto> enrollData(
-            @SpanTag("request") EnrollDataRequestDto request,
-            @RabbitProperty("correlationId") String correlationId);
+            @SpanTag("request") EnrollDataRequestDto request, @RabbitProperty("correlationId") String correlationId);
 
     @NewSpan("visa.enrollPaymentInstruments")
     @Binding("enrollPaymentInstruments")
@@ -38,8 +37,7 @@ public interface VisaClickToPayProducer {
     @NewSpan("visa.requestStatus")
     @Binding("requestStatus")
     Mono<RequestStatusResponseDto> requestStatus(
-            @SpanTag("requestTraceId") String requestTraceId,
-            @RabbitProperty("correlationId") String correlationId);
+            @SpanTag("requestTraceId") String requestTraceId, @RabbitProperty("correlationId") String correlationId);
 
     @NewSpan("visa.managePaymentInstruments")
     @Binding("managePaymentInstruments")
@@ -68,6 +66,5 @@ public interface VisaClickToPayProducer {
     @NewSpan("visa.getData")
     @Binding("getData")
     Mono<ConsumerDataResponseDto> getData(
-            @SpanTag("request") GetDataRequestDto request,
-            @RabbitProperty("correlationId") String correlationId);
+            @SpanTag("request") GetDataRequestDto request, @RabbitProperty("correlationId") String correlationId);
 }

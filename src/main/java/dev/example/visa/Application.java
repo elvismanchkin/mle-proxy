@@ -11,5 +11,4 @@ public class Application {
         Hooks.enableAutomaticContextPropagation();
         Micronaut.run(Application.class, args);
     }
-
 }

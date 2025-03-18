@@ -7,8 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record BaseRequestDto(
-        String intentType,
-        String intentValue
-) {
-}
+public record BaseRequestDto(String intentType, String intentValue) {}

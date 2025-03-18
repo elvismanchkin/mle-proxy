@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.reset;
@@ -233,7 +234,7 @@ public class VisaClickToPayResilienceTest {
             byte[] responseBytes = rabbitClient.receiveResponse(responseQueue, correlationId, 4);
 
             // Should not receive a response due to timeout
-            assertEquals(null, responseBytes);
+            assertNull(responseBytes);
         } finally {
             rabbitClient.close();
         }

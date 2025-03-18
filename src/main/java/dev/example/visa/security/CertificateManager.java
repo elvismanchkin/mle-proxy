@@ -1,5 +1,6 @@
 package dev.example.visa.security;
 
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.context.event.ApplicationEventListener;
 import io.micronaut.context.event.ShutdownEvent;
@@ -24,6 +25,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 @Slf4j
+@Requires(bean = VaultService.class, notEnv = "test")
 @Singleton
 public class CertificateManager implements ApplicationEventListener<ShutdownEvent> {
 

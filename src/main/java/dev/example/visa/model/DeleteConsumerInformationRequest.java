@@ -7,8 +7,4 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record DeleteConsumerInformationRequest(
-        Intent intent,
-        ConsumerInformationIdRef consumerInformation
-) {
-}
+public record DeleteConsumerInformationRequest(Intent intent, ConsumerInformationIdRef consumerInformation) {}

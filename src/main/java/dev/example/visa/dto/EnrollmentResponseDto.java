@@ -7,11 +7,7 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record EnrollmentResponseDto(
-        String status,
-        String requestId,
-        ErrorInfoDto error
-) implements BaseResponseDto {
+public record EnrollmentResponseDto(String status, String requestId, ErrorInfoDto error) implements BaseResponseDto {
     @Override
     public String getStatus() {
         return status;
