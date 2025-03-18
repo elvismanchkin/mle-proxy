@@ -1,0 +1,47 @@
+# src/test/resources/application-test.yml
+micronaut:
+  application:
+    name: visa-click-to-pay-proxy-test
+  server:
+    port: -1  # Random port for tests
+
+  # Disable actual HTTP client since we're mocking it
+  http:
+    client:
+      read-timeout: 2s  # Shorter timeouts for tests
+      connect-timeout: 2s
+
+  # Disable OpenTelemetry for tests
+  otel:
+    enabled: false
+
+# RabbitMQ config is set programmatically via TestContainers
+
+# Visa API config is simplified since we're mocking
+visa:
+  api:
+    base-url: http://mockserver:8080
+    retry:
+      max-attempts: 2
+      delay: 100ms
+
+  # Disable Vault for tests
+  security:
+    vault:
+      enabled: false
+
+# Use simpler logging configuration for tests
+logging:
+  level:
+    root: INFO
+    dev.example.visa: DEBUG
+    io.micronaut.http.client: INFO
+    com.rabbitmq: INFO
+
+# Enable all endpoints for testing
+endpoints:
+  all:
+    enabled: true
+    sensitive: false
+  health:
+    details-visible: ANONYMOUS

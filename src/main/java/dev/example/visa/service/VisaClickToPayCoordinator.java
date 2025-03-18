@@ -22,9 +22,11 @@ import dev.example.visa.model.ManageConsumerInformationRequest;
 import dev.example.visa.model.ManagePaymentInstrumentsRequest;
 import dev.example.visa.model.RequestIdResponse;
 import dev.example.visa.model.RequestStatusResponse;
+import io.micronaut.core.annotation.Introspected;
 import io.micronaut.tracing.annotation.NewSpan;
 import io.micronaut.tracing.annotation.SpanTag;
 import jakarta.inject.Singleton;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -38,6 +40,14 @@ public class VisaClickToPayCoordinator {
 
     private final VisaClickToPayService visaService;
     private final VisaClickToPayProducer visaProducer;
+    /**
+     * -- GETTER --
+     *  Gets the VisaMapper instance used by this coordinator.
+     *  This method is intended to be used in tests only.
+     *
+     * @return The VisaMapper instance
+     */
+    @Getter
     private final VisaMapper visaMapper;
 
     public VisaClickToPayCoordinator(VisaClickToPayService visaService,
