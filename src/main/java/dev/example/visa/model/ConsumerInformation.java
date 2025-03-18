@@ -20,4 +20,5 @@ public record ConsumerInformation(
         String countryCode,
         String externalConsumerID,
         List<NationalIdentifier> nationalIdentifiers
-) {}
+) {
+}

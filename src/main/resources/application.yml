@@ -10,7 +10,8 @@ micronaut:
       pool:
         enabled: true
         max-connections: 50
-
+  otel:
+    enabled: false
 rabbitmq:
   uri: ${RABBITMQ_URI:amqp://localhost:5672}
   username: ${RABBITMQ_USERNAME:guest}
@@ -59,18 +60,6 @@ logging:
     io.micronaut.http.client: INFO
     com.rabbitmq: INFO
   pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId},%X{spanId}] - %msg%n"
-
-# OpenTelemetry configuration
-otel:
-  exporter:
-    otlp:
-      enabled: ${OTEL_ENABLED:false}
-      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
-  traces:
-    exporter: otlp
-  metrics:
-    exporter: none
-  propagators: tracecontext, baggage
 
 # Metrics
 endpoints:

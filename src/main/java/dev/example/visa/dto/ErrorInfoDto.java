@@ -1,4 +1,4 @@
-package dev.example.visa.model;
+package dev.example.visa.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
@@ -9,17 +9,18 @@ import java.util.List;
 @Serdeable
 @Introspected
 @Builder
-public record ErrorResponse(
+public record ErrorInfoDto(
         String reason,
-        List<ErrorDetail> details,
-        String message
+        String message,
+        List<ErrorDetailDto> details
 ) {
     @Serdeable
     @Introspected
     @Builder
-    public record ErrorDetail(
+    public record ErrorDetailDto(
+            String field,
             String reason,
-            String location
+            String message
     ) {
     }
 }

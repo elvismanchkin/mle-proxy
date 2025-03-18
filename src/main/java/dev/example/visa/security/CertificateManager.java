@@ -90,7 +90,7 @@ public class CertificateManager implements ApplicationEventListener<ShutdownEven
         PrivateKey privateKey = loadPrivateKeyFromPEM(clientKeyPem);
 
         keyStore.setKeyEntry("client", privateKey, keyPassword.toCharArray(),
-                new Certificate[] { certificate });
+                new Certificate[]{certificate});
 
         try (FileOutputStream fos = new FileOutputStream(keystorePath)) {
             keyStore.store(fos, keystorePassword.toCharArray());

@@ -21,7 +21,8 @@ public record RequestStatusResponse(
             Intent intent,
             String status,
             List<ErrorDetail> errorDetails
-    ) {}
+    ) {
+    }
 
     @Serdeable
     @Introspected
@@ -30,5 +31,6 @@ public record RequestStatusResponse(
             String field,
             String reason,
             String message
-    ) {}
+    ) {
+    }
 }

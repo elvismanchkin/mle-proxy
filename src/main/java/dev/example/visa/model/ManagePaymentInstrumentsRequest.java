@@ -13,4 +13,5 @@ public record ManagePaymentInstrumentsRequest(
         Intent intent,
         List<?> paymentInstruments,
         ConsumerInformationIdRef consumerInformation
-) {}
+) {
+}

@@ -13,4 +13,5 @@ public record EnrollPaymentInstrumentsRequest(
         Intent intent,
         List<?> paymentInstruments,
         ConsumerInformationIdRef consumerInformation
-) {}
+) {
+}

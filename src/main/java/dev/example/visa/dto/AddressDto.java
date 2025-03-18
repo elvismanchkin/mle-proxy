@@ -1,4 +1,4 @@
-package dev.example.visa.model;
+package dev.example.visa.dto;
 
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
@@ -7,7 +7,7 @@ import lombok.Builder;
 @Serdeable
 @Introspected
 @Builder
-public record Address(
+public record AddressDto(
         String city,
         String state,
         String country,
@@ -15,5 +15,4 @@ public record Address(
         String addressLine1,
         String addressLine2,
         String addressLine3
-) {
-}
+) {}

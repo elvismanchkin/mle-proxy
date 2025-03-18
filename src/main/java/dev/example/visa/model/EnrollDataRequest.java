@@ -13,4 +13,5 @@ public record EnrollDataRequest(
         Intent intent,
         List<?> paymentInstruments,
         ConsumerInformation consumerInformation
-) {}
+) {
+}

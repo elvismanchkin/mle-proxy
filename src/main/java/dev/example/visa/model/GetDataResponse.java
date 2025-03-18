@@ -19,5 +19,6 @@ public record GetDataResponse(
             Intent intent,
             List<?> paymentInstruments,
             ConsumerInformation consumerInformation
-    ) {}
+    ) {
+    }
 }

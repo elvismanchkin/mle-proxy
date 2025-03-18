@@ -15,4 +15,5 @@ public record CardPaymentInstrument(
         String accountNumber,
         Address billingAddress,
         String expirationDate
-) {}
+) {
+}

@@ -21,4 +21,5 @@ public record BankAccountPaymentInstrument(
         String accountNumber,
         String accountNumberType,
         String bankIdentifierCode
-) {}
+) {
+}

@@ -10,4 +10,5 @@ import lombok.Builder;
 public record ManageConsumerInformationRequest(
         Intent intent,
         ConsumerInformation consumerInformation
-) {}
+) {
+}

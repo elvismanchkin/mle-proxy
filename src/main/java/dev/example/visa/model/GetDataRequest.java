@@ -10,4 +10,5 @@ import lombok.Builder;
 public record GetDataRequest(
         Intent intent,
         ConsumerInformationIdRef consumerInformation
-) {}
+) {
+}

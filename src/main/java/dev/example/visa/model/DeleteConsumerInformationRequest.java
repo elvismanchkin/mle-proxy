@@ -10,4 +10,5 @@ import lombok.Builder;
 public record DeleteConsumerInformationRequest(
         Intent intent,
         ConsumerInformationIdRef consumerInformation
-) {}
+) {
+}

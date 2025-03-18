@@ -11,4 +11,5 @@ public record DeletePaymentInstrumentsRequest(
         Intent intent,
         Object paymentInstruments,
         ConsumerInformationIdRef consumerInformation
-) {}
+) {
+}
