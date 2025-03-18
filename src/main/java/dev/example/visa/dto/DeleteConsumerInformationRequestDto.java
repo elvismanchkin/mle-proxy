@@ -15,4 +15,5 @@ public record DeleteConsumerInformationRequestDto(
 
         // Consumer ID
         String consumerId
-) {}
+) {
+}

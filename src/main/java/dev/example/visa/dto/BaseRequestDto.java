@@ -10,4 +10,5 @@ import lombok.Builder;
 public record BaseRequestDto(
         String intentType,
         String intentValue
-) {}
+) {
+}

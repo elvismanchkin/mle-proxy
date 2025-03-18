@@ -1,14 +1,23 @@
 package dev.example.visa.messaging;
 
-import dev.example.visa.dto.*;
-import dev.example.visa.mappers.VisaRequestMapper;
+import dev.example.visa.dto.ConsumerDataResponseDto;
+import dev.example.visa.dto.DeleteConsumerInformationRequestDto;
+import dev.example.visa.dto.DeletePaymentInstrumentsRequestDto;
+import dev.example.visa.dto.EnrollDataRequestDto;
+import dev.example.visa.dto.EnrollPaymentInstrumentsRequestDto;
+import dev.example.visa.dto.EnrollmentResponseDto;
+import dev.example.visa.dto.GetDataRequestDto;
+import dev.example.visa.dto.ManageConsumerInformationRequestDto;
+import dev.example.visa.dto.ManagePaymentInstrumentsRequestDto;
+import dev.example.visa.dto.RequestStatusResponseDto;
+import dev.example.visa.mappers.VisaMapper;
 import dev.example.visa.service.VisaClickToPayService;
-import io.micronaut.context.annotation.Value;
 import io.micronaut.rabbitmq.annotation.Queue;
 import io.micronaut.rabbitmq.annotation.RabbitListener;
 import io.micronaut.tracing.annotation.ContinueSpan;
 import io.micronaut.tracing.annotation.SpanTag;
 import jakarta.inject.Singleton;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import reactor.core.publisher.Mono;
@@ -21,18 +30,17 @@ import java.util.UUID;
 @Slf4j
 @Singleton
 @RabbitListener
+@RequiredArgsConstructor
 public class VisaClickToPayMessageHandler {
 
     private final VisaClickToPayService visaService;
-    private final VisaRequestMapper requestMapper;
+    private final VisaMapper requestMapper;
 
-    @Value("${rabbitmq.rpc.request-queue:visa-click-to-pay-requests}")
+
+    /*@Value("${rabbitmq.rpc.request-queue:visa-click-to-pay-requests}")
     private String requestQueuePrefix;
+    @Queue("#{@visaClickToPayMessageHandler.requestQueuePrefix}.enrollData")*/
 
-    public VisaClickToPayMessageHandler(VisaClickToPayService visaService, VisaRequestMapper requestMapper) {
-        this.visaService = visaService;
-        this.requestMapper = requestMapper;
-    }
 
     @Queue("${rabbitmq.rpc.request-queue:visa-click-to-pay-requests}.enrollData")
     @ContinueSpan

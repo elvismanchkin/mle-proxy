@@ -14,4 +14,5 @@ public record GetDataRequestDto(
 
         // Consumer ID
         String consumerId
-) {}
+) {
+}

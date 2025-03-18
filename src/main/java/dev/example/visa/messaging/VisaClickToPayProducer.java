@@ -1,6 +1,15 @@
 package dev.example.visa.messaging;
 
-import dev.example.visa.dto.*;
+import dev.example.visa.dto.ConsumerDataResponseDto;
+import dev.example.visa.dto.DeleteConsumerInformationRequestDto;
+import dev.example.visa.dto.DeletePaymentInstrumentsRequestDto;
+import dev.example.visa.dto.EnrollDataRequestDto;
+import dev.example.visa.dto.EnrollPaymentInstrumentsRequestDto;
+import dev.example.visa.dto.EnrollmentResponseDto;
+import dev.example.visa.dto.GetDataRequestDto;
+import dev.example.visa.dto.ManageConsumerInformationRequestDto;
+import dev.example.visa.dto.ManagePaymentInstrumentsRequestDto;
+import dev.example.visa.dto.RequestStatusResponseDto;
 import io.micronaut.rabbitmq.annotation.Binding;
 import io.micronaut.rabbitmq.annotation.RabbitClient;
 import io.micronaut.rabbitmq.annotation.RabbitProperty;

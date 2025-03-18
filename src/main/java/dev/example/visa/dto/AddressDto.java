@@ -15,4 +15,5 @@ public record AddressDto(
         String addressLine1,
         String addressLine2,
         String addressLine3
-) {}
+) {
+}
